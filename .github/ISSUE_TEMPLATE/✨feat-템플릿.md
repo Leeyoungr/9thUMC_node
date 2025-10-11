@@ -2,7 +2,7 @@
 name: "✨FEAT 템플릿"
 about: feat 템플릿
 title: "✨feat :"
-labels: ":sparkles: Feature"
+labels: ''
 assignees: ''
 
 ---
