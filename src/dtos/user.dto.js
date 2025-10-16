@@ -17,16 +17,18 @@ export const responseFromUser = ({ user, preferences }) => {
   if (user === null) {
     return null;
   }
+  const date = new Date(user.birth);
+  let formattedBirth = date.toISOString().split("T")[0];
 
   return {
     id: user.id,
     email: user.email,
     name: user.name,
     gender: user.gender,
-    birth: user.birth,
+    birth: formattedBirth,
     address: user.address,
-    detailAddress: user.detailAddress,
+    detailAddress: user.spec_address,
     phoneNumber: user.phone_number,
-    preferences: preferences,
+    preferences: preferences.map((pref) => pref.food_id),
   };
 };
