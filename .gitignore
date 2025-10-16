@@ -1,0 +1,13 @@
+# Environment variables
+.env
+.env.*
+
+# Editor directories and files
+.vscode/
+
+# Dependencies
+node_modules/
+
+# npm package manager files
+package-lock.json
+yarn.lock
