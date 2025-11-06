@@ -20,7 +20,9 @@ export const addStore = async (data) => {
 export const getStore = async (storeId) => {
   const conn = await pool.getConnection();
   try {
-    const [rows] = await conn.query(`SELECT * FROM store WHERE id = ?;`, [storeId]);
+    const [rows] = await conn.query(`SELECT * FROM store WHERE id = ?;`, [
+      storeId,
+    ]);
 
     if (!rows || rows.length === 0) {
       return null;
