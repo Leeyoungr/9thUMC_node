@@ -1,24 +1,24 @@
 import { pool } from "../config/db.config.js";
 
-// User 데이터 삽입
 export const addUser = async (data) => {
   const conn = await pool.getConnection();
 
   try {
-    const [confirm] = await pool.query(
-      `SELECT EXISTS(SELECT 1 FROM user WHERE email = ?) as isExistEmail;`,
-      data.email
-    );
+    // 이메일 중복 확인
+    const [confirm] = await conn.query(`SELECT EXISTS(SELECT 1 FROM user WHERE email = ?) as isExistEmail;`, [
+      data.email,
+    ]);
 
-    if (confirm[0].isExistEmail) {
+    if (confirm && confirm[0] && confirm[0].isExistEmail) {
       return null;
     }
 
-    const [result] = await pool.query(
-      `INSERT INTO user (email, name, gender, birth, address, spec_address, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+    const [result] = await conn.query(
+      `INSERT INTO user (email, name, password, gender, birth, address, spec_address, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         data.email,
         data.name,
+        data.password,
         data.gender,
         data.birth,
         data.address,
@@ -29,15 +29,12 @@ export const addUser = async (data) => {
 
     return result.insertId;
   } catch (err) {
-    throw new Error(
-      `오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`
-    );
+    throw new Error(`오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`);
   } finally {
     conn.release();
   }
 };
 
-// 사용자 정보 얻기
 export const getUser = async (userId) => {
   const conn = await pool.getConnection();
 
@@ -65,16 +62,11 @@ export const setPreference = async (userId, foodCategoryId) => {
   const conn = await pool.getConnection();
 
   try {
-    await pool.query(
-      `INSERT INTO user_prefer (food_id, user_id) VALUES (?, ?);`,
-      [foodCategoryId, userId]
-    );
+    await pool.query(`INSERT INTO user_prefer (food_id, user_id) VALUES (?, ?);`, [foodCategoryId, userId]);
 
     return;
   } catch (err) {
-    throw new Error(
-      `오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`
-    );
+    throw new Error(`오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`);
   } finally {
     conn.release();
   }
@@ -94,9 +86,7 @@ export const getUserPreferencesByUserId = async (userId) => {
 
     return preferences;
   } catch (err) {
-    throw new Error(
-      `오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`
-    );
+    throw new Error(`오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`);
   } finally {
     conn.release();
   }
