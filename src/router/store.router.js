@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { handleStoreCreate } from "../controllers/store.controller.js";
+import { handleListStoreReviews, handleStoreCreate } from "../controllers/store.controller.js";
 
 import { createStoreReqHandler, validateCreateStoreReq } from "../middleware/validation/store.validation.js";
 
@@ -21,5 +21,8 @@ router.post(
   createReviewReqHandler,
   handleCreateStoreReview
 );
+
+// GET /api/v1/stores/:storeId/reviews -> 매장 리뷰 목록 조회
+router.get("/:storeId/reviews", ensureStoreExists, handleListStoreReviews);
 
 export default router;

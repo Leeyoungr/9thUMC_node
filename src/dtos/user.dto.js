@@ -4,6 +4,7 @@ export const bodyToUser = (body) => {
   return {
     email: body.email,
     name: body.name,
+    nickname: body.nickname,
     password: body.password,
     gender: body.gender,
     birth: birth,
@@ -21,15 +22,17 @@ export const responseFromUser = ({ user, preferences }) => {
   const date = new Date(user.birth);
   let formattedBirth = date.toISOString().split("T")[0];
 
+  const preferFoods = preferences.map((preference) => preference.foodCategory.name);
   return {
     id: user.id,
     email: user.email,
     name: user.name,
+    nickname: user.nickname,
     gender: user.gender,
     birth: formattedBirth,
     address: user.address,
     detailAddress: user.spec_address,
     phoneNumber: user.phone_number,
-    preferences: preferences.map((pref) => pref.food_id),
+    preferCategory: preferFoods,
   };
 };
