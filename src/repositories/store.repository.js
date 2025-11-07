@@ -1,12 +1,13 @@
-import { pool } from "../config/db.config.js";
+import { pool, prisma } from "../config/db.config.js";
 
 export const addStore = async (data) => {
   const conn = await pool.getConnection();
   try {
-    const [result] = await conn.query(
-      `INSERT INTO store (name, region_id, address) VALUES (?, ?, ?);`,
-      [data.name, data.regionId, data.address || null]
-    );
+    const [result] = await conn.query(`INSERT INTO store (name, region_id, address) VALUES (?, ?, ?);`, [
+      data.name,
+      data.regionId,
+      data.address || null,
+    ]);
     return { id: result.insertId, ...data };
   } catch (err) {
     console.error("addStore error:", err);
@@ -20,9 +21,7 @@ export const addStore = async (data) => {
 export const getStore = async (storeId) => {
   const conn = await pool.getConnection();
   try {
-    const [rows] = await conn.query(`SELECT * FROM store WHERE id = ?;`, [
-      storeId,
-    ]);
+    const [rows] = await conn.query(`SELECT * FROM store WHERE id = ?;`, [storeId]);
 
     if (!rows || rows.length === 0) {
       return null;
@@ -35,4 +34,15 @@ export const getStore = async (storeId) => {
   } finally {
     conn.release();
   }
+};
+
+export const getAllStoreReviews = async (storeId, cursor) => {
+  const reviews = await prisma.userStoreReview.findMany({
+    select: { id: true, content: true, store: true, user: true },
+    where: { storeId: storeId, id: { gt: cursor } },
+    orderBy: { id: "asc" },
+    take: 5,
+  });
+
+  return reviews;
 };

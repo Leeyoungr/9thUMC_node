@@ -19,3 +19,8 @@ export const createStore = async (data) => {
 
   return responseFromStore(storeFromDb);
 };
+
+export const listStoreReviews = async (storeId) => {
+  const reviews = await getAllStoreReviews(storeId);
+  return responseFromReviews(reviews);
+};
