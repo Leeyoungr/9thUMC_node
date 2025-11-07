@@ -49,9 +49,22 @@ export const getUser = async (userId) => {
 
     return user[0];
   } catch (err) {
-    throw new Error(
-      `오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`
-    );
+    throw new Error(`오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`);
+  } finally {
+    conn.release();
+  }
+};
+
+// 이메일로 사용자 조회 (로그인에 사용)
+export const getUserByEmail = async (email) => {
+  const conn = await pool.getConnection();
+
+  try {
+    const [rows] = await conn.query(`SELECT * FROM user WHERE email = ? LIMIT 1;`, [email]);
+    if (!rows || rows.length === 0) return null;
+    return rows[0];
+  } catch (err) {
+    throw new Error(`사용자 조회 중 오류 발생: ${err}`);
   } finally {
     conn.release();
   }

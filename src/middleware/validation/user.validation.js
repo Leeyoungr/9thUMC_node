@@ -15,7 +15,24 @@ export const validateUserSignUpReq = [
   body("name").optional().isString().trim().isLength({ min: 1 }).withMessage("이름은 문자열이어야 합니다."),
 ];
 
+export const validateUserLoginReq = [
+  body("email").exists().isEmail().withMessage("유효한 이메일이 필요합니다.").bail().normalizeEmail(),
+  body("password").exists().isString().withMessage("비밀번호가 필요합니다."),
+];
+
 export const createUserReqHandler = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      status: "fail",
+      message: "유효성 검사 실패",
+      errors: errors.array(),
+    });
+  }
+  next();
+};
+
+export const createLoginReqHandler = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(StatusCodes.BAD_REQUEST).json({
