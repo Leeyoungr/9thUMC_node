@@ -12,3 +12,4 @@ node_modules/
 # npm package manager files
 package-lock.json
 yarn.lock
+/src/generated/prisma
