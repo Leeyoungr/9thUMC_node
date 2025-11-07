@@ -1,19 +1,22 @@
-import { pool } from "../config/db.config.js";
+import { prisma } from "../config/db.config.js";
 
 export const addReview = async (data) => {
-  const conn = await pool.getConnection();
   try {
-    const [result] = await conn.query(
-      `INSERT INTO review (store_id, user_id, score, content) VALUES (?, ?, ?, ?);`,
-      // HACK : user_id를 임시로 1로 고정
-      [data.storeId, 1, data.score, data.content || null]
-    );
+    // HACK: userId 임시 고정
+    const userId = 1;
 
-    return { id: result.insertId, userId: 1, ...data };
+    const created = await prisma.review.create({
+      data: {
+        storeId: data.storeId,
+        userId: userId,
+        score: data.score,
+        content: data.content || null,
+      },
+    });
+
+    return { id: created.id, ...data };
   } catch (err) {
     console.error("addReview error:", err);
     throw new Error(`리뷰 생성 중 오류 발생: ${err}`);
-  } finally {
-    conn.release();
   }
 };
