@@ -37,7 +37,7 @@ export const getStore = async (storeId) => {
 };
 
 export const getAllStoreReviews = async (storeId, cursor) => {
-  const reviews = await prisma.userStoreReview.findMany({
+  const reviews = await prisma.review.findMany({
     select: { id: true, content: true, store: true, user: true },
     where: { storeId: storeId, id: { gt: cursor } },
     orderBy: { id: "asc" },

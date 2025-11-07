@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { bodyToStore } from "../dtos/store.dto.js";
-import { createStore } from "../services/store.service.js";
+import { createStore, listStoreReviews } from "../services/store.service.js";
 
 export const handleStoreCreate = async (req, res, next) => {
   try {
@@ -19,5 +19,5 @@ export const handleListStoreReviews = async (req, res, next) => {
     parseInt(req.params.storeId),
     typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : 0
   );
-  res.status(StatusCodes.OK).json(reviews);
+  res.status(StatusCodes.OK).json({ status: "success", data: reviews });
 };
