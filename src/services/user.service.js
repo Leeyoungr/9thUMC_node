@@ -9,11 +9,12 @@ export const userSignUp = async (data) => {
   const joinUserId = await addUser({
     email: data.email,
     name: data.name,
+    nickname: data.nickname,
     password: hashPassword,
     gender: data.gender,
     birth: data.birth,
     address: data.address,
-    detailAddress: data.detailAddress,
+    specAddress: data.specAddress,
     phoneNumber: data.phoneNumber,
   });
 
