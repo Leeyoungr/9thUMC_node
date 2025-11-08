@@ -11,3 +11,14 @@ export const responseFromReview = (review) => {
     content: review.content,
   };
 };
+
+export const responseFromUserReviews = (reviews) => {
+  return reviews.map((r) => ({
+    id: r.id,
+    nickname: r.user?.nickname || null,
+    storeName: r.store?.name || null,
+    score: r.score,
+    content: r.content,
+    createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : null,
+  }));
+};

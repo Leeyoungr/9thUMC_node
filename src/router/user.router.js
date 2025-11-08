@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { handleUserLogin } from "../controllers/auth.controller.js";
-import { handleUserSignUp } from "../controllers/user.controller.js";
+import { handleUserReviews, handleUserSignUp } from "../controllers/user.controller.js";
 import {
   createLoginReqHandler,
   createUserReqHandler,
@@ -17,4 +17,5 @@ router.post("/signup", validateUserSignUpReq, createUserReqHandler, handleUserSi
 // POST /api/v1/users/login -> 로그인(비밀번호 검증)
 router.post("/login", validateUserLoginReq, createLoginReqHandler, handleUserLogin);
 
+router.get("/reviews", handleUserReviews);
 export default router;

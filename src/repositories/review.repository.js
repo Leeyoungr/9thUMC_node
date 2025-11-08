@@ -20,3 +20,25 @@ export const addReview = async (data) => {
     throw new Error(`리뷰 생성 중 오류 발생: ${err}`);
   }
 };
+
+export const getReviewsByUserId = async (userId) => {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: { userId: userId },
+      orderBy: [{ createdAt: "desc" }],
+      select: {
+        id: true,
+        score: true,
+        content: true,
+        createdAt: true,
+        user: { select: { nickname: true } },
+        store: { select: { name: true } },
+      },
+    });
+
+    return reviews;
+  } catch (err) {
+    console.error("getReviewsByUserId error:", err);
+    throw new Error(`사용자 리뷰 조회 중 오류 발생: ${err}`);
+  }
+};
