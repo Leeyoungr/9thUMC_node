@@ -17,7 +17,7 @@ export const isUserMissionInProgress = async (userId, missionId) => {
 export const addUserMission = async (userId, missionId) => {
   try {
     const created = await prisma.userMission.create({ data: { userId, missionId, status: "IN_PROGRESS" } });
-    return { id: created.id, missionId, status: "in_progress" };
+    return { id: created.id, missionId, status: "IN_PROGRESS" };
   } catch (err) {
     console.error("addUserMission error:", err);
     throw new Error(`미션 등록 중 오류 발생: ${err}`);
@@ -56,5 +56,36 @@ export const getUserMissionById = async (userMissionId) => {
   } catch (err) {
     console.error("getUserMissionById error:", err);
     throw new Error(`사용자 미션 조회 중 오류 발생: ${err}`);
+  }
+};
+
+export const getUserMissionsByStatus = async (userId, status) => {
+  try {
+    const where = { userId };
+
+    if (status === "IN_PROGRESS" || status === "COMPLETED") {
+      where.status = status;
+    }
+
+    const missions = await prisma.userMission.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        missionId: true,
+        mission: {
+          select: {
+            spec: true,
+            deadLine: true,
+            reward: true,
+          },
+        },
+      },
+    });
+
+    return missions;
+  } catch (err) {
+    console.error("getUserMissions error:", err);
+    throw new Error(`사용자 미션 목록 조회 중 오류 발생: ${err}`);
   }
 };

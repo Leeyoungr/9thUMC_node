@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { completeUserMission, createUserMission } from "../services/userMission.service.js";
+import { completeUserMission, createUserMission, listUserMissions } from "../services/userMission.service.js";
 
 export const handleCreateUserMission = async (req, res, next) => {
   try {
@@ -32,6 +32,17 @@ export const handleCompleteUserMission = async (req, res, next) => {
     }
 
     return res.status(StatusCodes.OK).json({ status: "success", data: { userMission: updated } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const handleUserMissions = async (req, res, next) => {
+  try {
+    const userId = 1; // 임시 고정
+    const status = req.query.status;
+    const missions = await listUserMissions({ userId, status });
+    return res.status(StatusCodes.OK).json({ status: "success", data: { missions } });
   } catch (err) {
     next(err);
   }
