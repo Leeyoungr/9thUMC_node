@@ -5,7 +5,7 @@ export const validateCreateUserMissionReq = [
   param("missionId").exists().toInt().isInt({ min: 1 }).withMessage("missionId는 1 이상의 정수여야 합니다."),
 ];
 
-export const createUserMissionReqHandler = (req, res, next) => {
+export const userMissionReqHandler = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(StatusCodes.BAD_REQUEST).json({

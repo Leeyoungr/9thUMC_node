@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { bodyToStore } from "../dtos/store.dto.js";
-import { createStore } from "../services/store.service.js";
+import { createStore, listStoreMissions, listStoreReviews } from "../services/store.service.js";
 
 export const handleStoreCreate = async (req, res, next) => {
   try {
@@ -15,9 +15,25 @@ export const handleStoreCreate = async (req, res, next) => {
 };
 
 export const handleListStoreReviews = async (req, res, next) => {
-  const reviews = await listStoreReviews(
-    parseInt(req.params.storeId),
-    typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : 0
-  );
-  res.status(StatusCodes.OK).json(reviews);
+  try {
+    const reviews = await listStoreReviews(
+      parseInt(req.params.storeId),
+      typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : undefined
+    );
+
+    res.status(StatusCodes.OK).json({ status: "success", data: reviews });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const handleListStoreMissions = async (req, res, next) => {
+  try {
+    const storeId = req.store.id;
+
+    const missions = await listStoreMissions(storeId);
+    res.status(StatusCodes.OK).json({ status: "success", data: missions });
+  } catch (err) {
+    next(err);
+  }
 };

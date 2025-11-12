@@ -9,7 +9,7 @@ export const bodyToUser = (body) => {
     gender: body.gender,
     birth: birth,
     address: body.address || "",
-    detailAddress: body.detailAddress || "",
+    specAddress: body.specAddress || "",
     phoneNumber: body.phoneNumber,
     preferences: body.preferences,
   };
@@ -31,8 +31,8 @@ export const responseFromUser = ({ user, preferences }) => {
     gender: user.gender,
     birth: formattedBirth,
     address: user.address,
-    detailAddress: user.spec_address,
-    phoneNumber: user.phone_number,
+    specAddress: user.specAddress,
+    phoneNumber: user.phoneNumber,
     preferCategory: preferFoods,
   };
 };

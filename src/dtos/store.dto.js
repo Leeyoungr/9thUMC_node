@@ -20,6 +20,8 @@ export const responseFromReviews = (reviews) => {
     data: reviews,
     pagination: {
       cursor: reviews.length ? reviews[reviews.length - 1].id : null,
+      hasNext: reviews.length === 5,
+      pageSize: reviews.length,
     },
   };
 };
