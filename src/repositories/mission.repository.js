@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.config.js";
+import CustomError from "../errors/custom.error.js";
 
 export const getMissionsByStoreId = async (storeId) => {
   try {
@@ -16,6 +17,6 @@ export const getMissionsByStoreId = async (storeId) => {
     return missions;
   } catch (err) {
     console.error("getMissionsByStoreId error:", err);
-    throw new Error(`매장 미션 조회 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "가게 미션 조회 중 오류 발생" });
   }
 };

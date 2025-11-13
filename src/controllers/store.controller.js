@@ -1,14 +1,12 @@
 import { StatusCodes } from "http-status-codes";
 import { bodyToStore } from "../dtos/store.dto.js";
 import { createStore, listStoreMissions, listStoreReviews } from "../services/store.service.js";
+import CustomError from "../errors/custom.error.js";
 
 export const handleStoreCreate = async (req, res, next) => {
   try {
     const store = await createStore(bodyToStore(req.body));
-    res.status(StatusCodes.CREATED).json({
-      status: "success",
-      data: { store },
-    });
+    return res.status(StatusCodes.CREATED).success({ data: { store } });
   } catch (err) {
     next(err);
   }
@@ -21,7 +19,7 @@ export const handleListStoreReviews = async (req, res, next) => {
       typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : undefined
     );
 
-    res.status(StatusCodes.OK).json({ status: "success", data: reviews });
+    res.status(StatusCodes.OK).success({ data: reviews });
   } catch (err) {
     next(err);
   }
@@ -32,7 +30,7 @@ export const handleListStoreMissions = async (req, res, next) => {
     const storeId = req.store.id;
 
     const missions = await listStoreMissions(storeId);
-    res.status(StatusCodes.OK).json({ status: "success", data: missions });
+    res.status(StatusCodes.OK).success({ data: missions });
   } catch (err) {
     next(err);
   }

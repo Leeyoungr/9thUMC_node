@@ -1,4 +1,5 @@
 import { StatusCodes } from "http-status-codes";
+import CustomError from "../errors/custom.error.js";
 import { completeUserMission, createUserMission, listUserMissions } from "../services/userMission.service.js";
 
 export const handleCreateUserMission = async (req, res, next) => {
@@ -9,10 +10,10 @@ export const handleCreateUserMission = async (req, res, next) => {
 
     const created = await createUserMission(userId, missionId);
     if (created === null) {
-      return res.status(StatusCodes.CONFLICT).json({ status: "fail", message: "이미 해당 미션을 도전 중입니다." });
+      throw new CustomError({ name: "USER_MISSION_ALREADY_IN_PROGRESS" });
     }
 
-    return res.status(StatusCodes.CREATED).json({ status: "success", data: { userMission: created } });
+    return res.status(StatusCodes.CREATED).success({ data: { userMission: created } });
   } catch (err) {
     next(err);
   }
@@ -22,16 +23,12 @@ export const handleCompleteUserMission = async (req, res, next) => {
   try {
     const userMission = req.userMission;
     if (!userMission) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ status: "fail", message: "userMission not provided" });
+      throw new CustomError({ name: "BAD_REQUEST", description: "userMission not provided" });
     }
-
     // TODO : 사용자 검증 로직 추가
     const updated = await completeUserMission(userMission.id);
-    if (!updated) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ status: "fail", message: "진행중인 미션을 찾을 수 없습니다." });
-    }
 
-    return res.status(StatusCodes.OK).json({ status: "success", data: { userMission: updated } });
+    return res.status(StatusCodes.OK).success({ data: { userMission: updated } });
   } catch (err) {
     next(err);
   }
@@ -42,7 +39,7 @@ export const handleUserMissions = async (req, res, next) => {
     const userId = 1; // 임시 고정
     const status = req.query.status;
     const missions = await listUserMissions({ userId, status });
-    return res.status(StatusCodes.OK).json({ status: "success", data: { missions } });
+    return res.status(StatusCodes.OK).success({ data: { missions } });
   } catch (err) {
     next(err);
   }

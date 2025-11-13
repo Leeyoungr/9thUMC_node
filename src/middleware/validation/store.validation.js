@@ -1,5 +1,5 @@
 import { body, validationResult } from "express-validator";
-import { StatusCodes } from "http-status-codes";
+import CustomError from "../../errors/custom.error.js";
 
 export const validateCreateStoreReq = [
   body("name")
@@ -40,11 +40,7 @@ export const validateCreateStoreReq = [
 export const createStoreReqHandler = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: "fail",
-      message: "유효성 검사 실패",
-      errors: errors.array(),
-    });
+    throw new CustomError({ name: "BAD_REQUEST", description: "유효성 검사 실패", data: errors.array() });
   }
   next();
 };

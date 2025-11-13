@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.config.js";
+import CustomError from "../errors/custom.error.js";
 
 export const addStore = async (data) => {
   try {
@@ -10,10 +11,10 @@ export const addStore = async (data) => {
       },
     });
 
-    return { id: created.id, ...data };
+    return created;
   } catch (err) {
     console.error("addStore error:", err);
-    throw new Error(`가게 생성 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "가게 생성 중 오류 발생" });
   }
 };
 
@@ -24,7 +25,7 @@ export const getStore = async (storeId) => {
     return store || null;
   } catch (err) {
     console.error("getStore error:", err);
-    throw new Error(`가게 조회 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "가게 조회 중 오류 발생" });
   }
 };
 
@@ -62,6 +63,6 @@ export const getAllStoreReviews = async (storeId, cursor) => {
     return reviews;
   } catch (err) {
     console.error("getAllStoreReviews error:", err);
-    throw new Error(`매장 리뷰 조회 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "매장 리뷰 조회 중 오류 발생" });
   }
 };
