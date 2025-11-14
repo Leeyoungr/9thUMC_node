@@ -14,7 +14,7 @@ const Errors = {
     message: "이메일 또는 비밀번호가 올바르지 않습니다.",
     description: "로그인 실패: 일치하는 사용자 없음 또는 비밀번호 오류",
   },
-  DuplicateUserEmailError: {
+  DUPLICATE_USER_EMAIL: {
     code: StatusCodes.CONFLICT,
     message: "이미 사용 중인 이메일입니다.",
     description: "회원가입 실패: 중복된 이메일",
