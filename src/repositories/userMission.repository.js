@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.config.js";
+import CustomError from "../errors/custom.error.js";
 
 export const isUserMissionInProgress = async (userId, missionId) => {
   try {
@@ -10,7 +11,7 @@ export const isUserMissionInProgress = async (userId, missionId) => {
     return !!existingUserMission;
   } catch (err) {
     console.error("isUserMissionInProgress error:", err);
-    throw new Error(`미션 조회 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "미션 조회 중 오류 발생" });
   }
 };
 
@@ -20,7 +21,7 @@ export const addUserMission = async (userId, missionId) => {
     return { id: created.id, missionId, status: "IN_PROGRESS" };
   } catch (err) {
     console.error("addUserMission error:", err);
-    throw new Error(`미션 등록 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "미션 등록 중 오류 발생" });
   }
 };
 
@@ -41,7 +42,7 @@ export const updateUserMission = async (userMissionId) => {
     return updated || null;
   } catch (err) {
     console.error("completeUserMission error:", err);
-    throw new Error(`미션 완료 처리 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "미션 완료 처리 중 오류 발생" });
   }
 };
 
@@ -55,7 +56,7 @@ export const getUserMissionById = async (userMissionId) => {
     return userMission || null;
   } catch (err) {
     console.error("getUserMissionById error:", err);
-    throw new Error(`사용자 미션 조회 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "사용자 미션 조회 중 오류 발생" });
   }
 };
 
@@ -86,6 +87,6 @@ export const getUserMissionsByStatus = async (userId, status) => {
     return missions;
   } catch (err) {
     console.error("getUserMissions error:", err);
-    throw new Error(`사용자 미션 목록 조회 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "사용자 미션 목록 조회 중 오류 발생" });
   }
 };

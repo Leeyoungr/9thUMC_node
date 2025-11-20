@@ -1,5 +1,6 @@
 import { body, query, validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
+import CustomError from "../../errors/custom.error.js";
 
 export const validateUserSignUpReq = [
   body("email").exists().isEmail().withMessage("유효한 이메일이 필요합니다.").bail().normalizeEmail(),
@@ -45,11 +46,7 @@ export const validateUserMissionsReq = [
 export const userReqHandler = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: "fail",
-      message: "유효성 검사 실패",
-      errors: errors.array(),
-    });
+    throw new CustomError({ name: "BAD_REQUEST", description: "유효성 검사 실패", data: errors.array() });
   }
   next();
 };

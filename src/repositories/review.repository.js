@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.config.js";
+import CustomError from "../errors/custom.error.js";
 
 export const addReview = async (data) => {
   try {
@@ -14,10 +15,10 @@ export const addReview = async (data) => {
       },
     });
 
-    return { id: created.id, ...data };
+    return created;
   } catch (err) {
     console.error("addReview error:", err);
-    throw new Error(`리뷰 생성 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "리뷰 생성 중 오류 발생" });
   }
 };
 
@@ -39,6 +40,6 @@ export const getReviewsByUserId = async (userId) => {
     return reviews;
   } catch (err) {
     console.error("getReviewsByUserId error:", err);
-    throw new Error(`사용자 리뷰 조회 중 오류 발생: ${err}`);
+    throw new CustomError({ name: "DATABASE_ERROR", description: "사용자 리뷰 조회 중 오류 발생" });
   }
 };

@@ -1,21 +1,51 @@
 import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
-import mysql from "mysql2/promise";
-
-export const prisma = new PrismaClient({ log: ["query"] });
 
 dotenv.config();
 
-export const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost", // mysql의 hostname
-  user: process.env.DB_USER || "root", // user 이름
-  port: process.env.DB_PORT || 3306, // 포트 번호
-  database: process.env.DB_NAME, // 데이터베이스 이름
-  password: process.env.DB_PASSWORD, // 비밀번호
-  timezone: "Asia/Seoul",
-  waitForConnections: true,
-  // Pool에 획득할 수 있는 connection이 없을 때,
-  // true면 요청을 queue에 넣고 connection을 사용할 수 있게 되면 요청을 실행하며, false이면 즉시 오류를 내보내고 다시 요청
-  connectionLimit: 10, // 몇 개의 커넥션을 가지게끔 할 것인지
-  queueLimit: 0, // getConnection에서 오류가 발생하기 전에 Pool에 대기할 요청의 개수 한도
-});
+const globalForPrisma = globalThis;
+
+const isDev = process.env.NODE_ENV !== "production";
+
+// 환경에 따른 로그레벨 설정
+const prismaClientOptions = {
+  log: isDev ? ["query", "info", "warn", "error"] : ["error"],
+};
+
+// 싱글톤 유지
+export const prisma = globalForPrisma.__prismaClient ?? new PrismaClient(prismaClientOptions);
+if (isDev) globalForPrisma.__prismaClient = prisma;
+
+// Prisma 연결/해제 헬퍼 함수
+export const connectPrisma = async () => {
+  try {
+    await prisma.$connect();
+    if (isDev) console.info("Prisma connected");
+  } catch (err) {
+    console.error("Prisma connect error:", err);
+    throw err;
+  }
+};
+
+export const disconnectPrisma = async () => {
+  try {
+    await prisma.$disconnect();
+    if (isDev) console.info("Prisma disconnected");
+  } catch (err) {
+    console.error("Prisma disconnect error:", err);
+  }
+};
+
+if (!globalForPrisma.__prismaShutdownHandlerRegistered) {
+  const shutdown = async () => {
+    try {
+      await disconnectPrisma();
+    } finally {
+      process.exit(0);
+    }
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+  globalForPrisma.__prismaShutdownHandlerRegistered = true;
+}
