@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
+import path from "path";
+import swaggerUiExpress from "swagger-ui-express";
+import YAML from "yamljs";
 import globalErrorHandler from "./errors/error.middleware.js";
 import { attachResponseHelpers } from "./errors/response.middleware.js";
 import indexRouter from "./router/index.router.js";
@@ -11,6 +14,9 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+
+const swaggerSpec = YAML.load(path.join(path.dirname(new URL(import.meta.url).pathname), "./swagger.yaml"));
+app.use("/api-docs", swaggerUiExpress.serve, swaggerUiExpress.setup(swaggerSpec));
 
 app.use(attachResponseHelpers);
 

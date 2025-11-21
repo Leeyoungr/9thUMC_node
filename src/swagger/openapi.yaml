@@ -1,0 +1,329 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: UMC 9th API
+  description: UMC 9th Node.js 테스트 프로젝트 API 문서
+servers:
+  - url: http://localhost:3000/
+components:
+  parameters:
+    storeId:
+      name: storeId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: "매장 ID"
+    missionId:
+      name: missionId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: "미션 ID"
+    userMissionId:
+      name: userMissionId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: "사용자 미션 ID"
+    cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: integer
+      description: "커서 ID"
+    status:
+      name: status
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [IN_PROGRESS, COMPLETED]
+      description: "미션 상태 필터"
+
+  requestBodies:
+    CreateStore:
+      description: "특정지역에 매장 등록 페이로드"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/StoreCreate"
+    CreateReview:
+      description: "매장 리뷰 등록 페이로드"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewCreate"
+    UserSignup:
+      description: "사용자 회원가입 페이로드"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserCreate"
+    UserLogin:
+      description: "사용자 로그인 페이로드"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserLogin"
+
+  schemas:
+    StoreCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        regionId:
+          type: integer
+        address:
+          type: string
+          nullable: true
+      required: [name, regionId, address]
+    Store:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        regionId:
+          type: integer
+        address:
+          type: string
+          nullable: true
+    ReviewCreate:
+      type: object
+      properties:
+        score:
+          type: number
+        content:
+          type: string
+          nullable: true
+      required: [score]
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        score:
+          type: number
+        content:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        storeName:
+          type: string
+          nullable: true
+        nickname:
+          type: string
+          nullable: true
+    UserCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        gender:
+          type: string
+        birth:
+          type: string
+          format: date
+        address:
+          type: string
+          nullable: true
+        specAddress:
+          type: string
+          nullable: true
+        phoneNumber:
+          type: string
+        preferences:
+          type: array
+          items:
+            type: integer
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+    UserMission:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        missionId:
+          type: integer
+        status:
+          type: string
+    ErrorDetail:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        reason:
+          type: string
+        description:
+          type: string
+          nullable: true
+        data:
+          type: object
+          nullable: true
+    FailResponse:
+      type: object
+      properties:
+        resultType:
+          type: string
+          example: FAIL
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+        success:
+          type: ["null"]
+          example: null
+    SuccesResponse:
+      type: object
+      properties:
+        resultType:
+          type: string
+          example: SUCCESS
+        error:
+          type: ["null"]
+          example: null
+        success:
+          type: object
+
+  responses:
+    SuccessResponse:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SuccesResponse"
+    FailResponse:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FailResponse"
+    BadRequest:
+      description: "Bad Request (요청 구문(문법)이 잘못되었거나 유효하지 않아 서버가 요청을 이해할 수 없음)"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FailResponse"
+    NotFound:
+      description: "Not Found (요청한 리소스를 찾을 수 없음)"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FailResponse"
+    Unauthorized:
+      description: "Unauthorized (인증되지 않은 사용자)"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FailResponse"
+
+    SuccessStore:
+      description: "Store created"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/SuccesResponse"
+              - properties:
+                  success:
+                    properties:
+                      store:
+                        $ref: "#/components/schemas/Store"
+    SuccessReview:
+      description: "Review created"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/SuccesResponse"
+              - properties:
+                  success:
+                    properties:
+                      review:
+                        $ref: "#/components/schemas/Review"
+    SuccessListReviews:
+      description: "List of reviews"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/SuccesResponse"
+              - properties:
+                  success:
+                    properties:
+                      reviews:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Review"
+    SuccessUserMissions:
+      description: "List of user missions"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/SuccesResponse"
+              - properties:
+                  success:
+                    properties:
+                      missions:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/UserMission"
+    SuccessUserMissionCreate:
+      description: "User mission created"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/SuccesResponse"
+              - properties:
+                  success:
+                    properties:
+                      userMission:
+                        $ref: "#/components/schemas/UserMission"
+
+paths:
+  /api/v1/stores/signup:
+    $ref: "./store.yaml#/~1api~1v1~1stores~1signup"
+  /api/v1/stores/{storeId}/reviews:
+    get:
+      $ref: "./store.yaml#/~1api~1v1~1stores~1{storeId}~1reviews/get"
+    post:
+      $ref: "./store.yaml#/~1api~1v1~1stores~1{storeId}~1reviews/post"
+  /api/v1/stores/{storeId}/missions:
+    $ref: "./store.yaml#/~1api~1v1~1stores~1{storeId}~1missions"
+  /api/v1/users/signup:
+    $ref: "./user.yaml#/~1api~1v1~1users~1signup"
+  /api/v1/users/reviews:
+    $ref: "./user.yaml#/~1api~1v1~1users~1reviews"
+  /api/v1/users/missions:
+    $ref: "./user.yaml#/~1api~1v1~1users~1missions"
+  /api/v1/missions/{missionId}:
+    $ref: "./mission.yaml#/~1api~1v1~1missions~1{missionId}"
+  /api/v1/missions/{userMissionId}:
+    $ref: "./mission.yaml#/~1api~1v1~1missions~1{userMissionId}"
