@@ -1,0 +1,29 @@
+/api/v1/missions/{missionId}:
+  post:
+    tags:
+      - Missions
+    summary: 사용자 미션 생성
+    parameters:
+      - $ref: "./openapi.yaml#/components/parameters/missionId"
+    responses:
+      "201":
+        $ref: "./openapi.yaml#/components/responses/SuccessUserMissionCreate"
+      "401":
+        $ref: "./openapi.yaml#/components/responses/Unauthorized"
+      "404":
+        $ref: "./openapi.yaml#/components/responses/NotFound"
+
+/api/v1/missions/{userMissionId}:
+  patch:
+    tags:
+      - Missions
+    summary: 사용자 미션 완료 처리
+    parameters:
+      - $ref: "./openapi.yaml#/components/parameters/userMissionId"
+    responses:
+      "200":
+        $ref: "./openapi.yaml#/components/responses/SuccessResponse"
+      "401":
+        $ref: "./openapi.yaml#/components/responses/Unauthorized"
+      "404":
+        $ref: "./openapi.yaml#/components/responses/NotFound"

@@ -1,0 +1,54 @@
+/api/v1/stores/signup:
+  post:
+    tags:
+      - Stores
+    summary: 매장 회원가입
+    requestBody:
+      $ref: "./openapi.yaml#/components/requestBodies/CreateStore"
+    responses:
+      "201":
+        $ref: "./openapi.yaml#/components/responses/SuccessStore"
+      "400":
+        $ref: "./openapi.yaml#/components/responses/BadRequest"
+
+/api/v1/stores/{storeId}/reviews:
+  post:
+    tags:
+      - Stores
+    summary: 매장 리뷰 작성
+    parameters:
+      - $ref: "./openapi.yaml#/components/parameters/storeId"
+    requestBody:
+      $ref: "./openapi.yaml#/components/requestBodies/CreateReview"
+    responses:
+      "201":
+        $ref: "./openapi.yaml#/components/responses/SuccessReview"
+      "400":
+        $ref: "./openapi.yaml#/components/responses/BadRequest"
+      "404":
+        $ref: "./openapi.yaml#/components/responses/NotFound"
+
+  get:
+    tags:
+      - Stores
+    summary: 매장 리뷰 목록 조회
+    parameters:
+      - $ref: "./openapi.yaml#/components/parameters/storeId"
+    responses:
+      "200":
+        $ref: "./openapi.yaml#/components/responses/SuccessListReviews"
+      "404":
+        $ref: "./openapi.yaml#/components/responses/NotFound"
+
+/api/v1/stores/{storeId}/missions:
+  get:
+    tags:
+      - Stores
+    summary: 매장 미션 목록 조회
+    parameters:
+      - $ref: "./openapi.yaml#/components/parameters/storeId"
+    responses:
+      "200":
+        $ref: "./openapi.yaml#/components/responses/SuccessUserMissions"
+      "404":
+        $ref: "./openapi.yaml#/components/responses/NotFound"
