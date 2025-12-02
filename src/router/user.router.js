@@ -1,6 +1,7 @@
 import { Router } from "express";
+import passport from "passport";
 
-import { handleUserLogin } from "../controllers/auth.controller.js";
+import { handleUserLogin } from "../controllers/oauth.controller.js";
 import { handleUserReviews, handleUserSignUp } from "../controllers/user.controller.js";
 import { handleUserMissions } from "../controllers/userMission.controller.js";
 import {
@@ -11,6 +12,15 @@ import {
 } from "../middleware/validation/user.validation.js";
 
 const router = Router();
+
+const isLogin = passport.authenticate("jwt", { session: false });
+
+router.get("/mypage", isLogin, (req, res) => {
+  res.status(200).success({
+    message: `인증 성공! ${req.user.name}님의 마이페이지입니다.`,
+    user: req.user,
+  });
+});
 
 // POST /api/v1/users/signup -> 사용자 회원가입
 router.post("/signup", validateUserSignUpReq, userReqHandler, handleUserSignUp);
