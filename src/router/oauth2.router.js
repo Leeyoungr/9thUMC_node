@@ -1,6 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
-import { handleRefreshToken } from "../controllers/oauth.controller.js";
+import { handleRefreshToken, handleGoogleCallback } from "../controllers/oauth.controller.js";
 
 const router = Router();
 
@@ -17,18 +17,7 @@ router.get(
     session: false,
     failureRedirect: "/login-failed",
   }),
-  (req, res) => {
-    const tokens = req.user;
-
-    res.status(200).json({
-      resultType: "SUCCESS",
-      error: null,
-      success: {
-        message: "Google 로그인 성공!",
-        tokens: tokens, // { "accessToken": "...", "refreshToken": "..." }
-      },
-    });
-  }
+  handleGoogleCallback
 );
 
 // POST /oauth2/refresh -> 토큰 재발급

@@ -44,3 +44,13 @@ export const handleRefreshToken = async (req, res, next) => {
     next(err);
   }
 };
+
+export const handleGoogleCallback = async (req, res, next) => {
+  try {
+    const tokens = req.user;
+
+    return res.status(StatusCodes.OK).success({ data: { tokens }, message: "Google 로그인 성공!" });
+  } catch (err) {
+    next(err);
+  }
+};
