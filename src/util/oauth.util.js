@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { prisma } from "./db.config.js";
+import { prisma } from "../config/db.config.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
@@ -27,17 +27,25 @@ const googleVerify = async (profile) => {
   if (user !== null) {
     return { id: user.id, email: user.email, name: user.name };
   }
-  // 신규 사용자 생성
+  // 신규 사용자 생성 (User 및 UserAuth 동시 생성)
+  const provider = "GOOGLE";
+  const providerAccountId = profile.id;
+  const providerEmail = profile.emails?.[0]?.value ?? null;
+
   const created = await prisma.user.create({
     data: {
-      email,
+      email: profile.emails?.[0]?.value,
       name: profile.displayName,
-      gender: "추후 수정",
-      birth: new Date(1970, 0, 1),
-      address: "추후 수정",
-      detailAddress: "추후 수정",
-      phoneNumber: "추후 수정",
+      userAuths: {
+        create: {
+          provider,
+          providerAccountId,
+          providerEmail,
+          refreshTokenHash: null,
+        },
+      },
     },
+    include: { userAuths: true },
   });
 
   return { id: created.id, email: created.email, name: created.name };

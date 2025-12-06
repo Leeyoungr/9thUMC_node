@@ -11,7 +11,7 @@ import { attachResponseHelpers } from "./errors/response.middleware.js";
 import indexRouter from "./router/index.router.js";
 import oauth2Router from "./router/oauth2.router.js";
 import passport from "passport";
-import { googleStrategy, jwtStrategy } from "./config/oauth.config.js";
+import { googleStrategy, jwtStrategy } from "./util/oauth.util.js";
 import { prisma } from "./config/db.config.js";
 
 dotenv.config();
