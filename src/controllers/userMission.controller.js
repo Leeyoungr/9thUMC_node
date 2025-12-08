@@ -4,8 +4,8 @@ import { completeUserMission, createUserMission, listUserMissions } from "../ser
 
 export const handleCreateUserMission = async (req, res, next) => {
   try {
-    // HACK : 임시로 userId를 1로 고정
-    const userId = 1;
+    const userId = req.user.id;
+
     const missionId = Number(req.params.missionId);
 
     const created = await createUserMission(userId, missionId);
@@ -25,7 +25,6 @@ export const handleCompleteUserMission = async (req, res, next) => {
     if (!userMission) {
       throw new CustomError({ name: "BAD_REQUEST", description: "userMission not provided" });
     }
-    // TODO : 사용자 검증 로직 추가
     const updated = await completeUserMission(userMission.id);
 
     return res.status(StatusCodes.OK).success({ data: { userMission: updated } });
@@ -36,7 +35,8 @@ export const handleCompleteUserMission = async (req, res, next) => {
 
 export const handleUserMissions = async (req, res, next) => {
   try {
-    const userId = 1; // 임시 고정
+    const userId = req.user.id;
+
     const status = req.query.status;
     const missions = await listUserMissions({ userId, status });
     return res.status(StatusCodes.OK).success({ data: { missions } });

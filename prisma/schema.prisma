@@ -30,27 +30,47 @@ enum UserMissionStatus {
   COMPLETED
 }
 
+enum AuthProvider {
+  GOOGLE
+  LOCAL
+}
+
 // Models
 model User {
   id            Int      @id @default(autoincrement())
   email         String   @unique(map: "email") @db.VarChar(255)
   name          String   @db.VarChar(100)
-  nickname      String   @db.VarChar(100)
-  password      String   @db.VarChar(255)
-  gender        Gender   @default(OTHER)
-  birth         DateTime @db.Date
-  address       String   @db.VarChar(255)
+  nickname      String?   @db.VarChar(100)
+  password      String?   @db.VarChar(255)
+  gender        Gender?   @default(OTHER)
+  birth         DateTime? @db.Date
+  address       String?   @db.VarChar(255)
   specAddress   String?  @map("spec_address") @db.VarChar(255)
-  phoneNumber   String   @map("phone_number") @db.VarChar(15)
+  phoneNumber   String?   @map("phone_number") @db.VarChar(15)
   status        Status   @default(ACTIVE)
   createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(6)
   updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(6)
 
+  userAuths     UserAuth[]
   userPrefer    userPrefer[]
   userMission   UserMission[]
   reviews       Review[]
 
   @@map("user")
+}
+
+model UserAuth {
+  id                Int          @id @default(autoincrement())
+  provider          AuthProvider
+  providerAccountId String       
+  providerEmail     String?      
+  refreshTokenHash  String?
+  user              User         @relation(fields: [userId], references: [id])
+  userId            Int
+  createdAt         DateTime     @default(now())
+
+  @@unique([provider, providerAccountId])
+  @@map("user_auth")
 }
 
 model FoodCategory {
@@ -146,3 +166,4 @@ model userPrefer {
   @@index([userId], map: "user_id")
   @@map("user_prefer")
 }
+

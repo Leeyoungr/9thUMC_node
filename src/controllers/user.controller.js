@@ -18,8 +18,7 @@ export const handleUserSignUp = async (req, res, next) => {
 
 export const handleUserReviews = async (req, res, next) => {
   try {
-    // HACK: 임시로 userId를 1로 고정
-    const userId = 1;
+    const userId = req.user.id;
 
     const reviews = await listUserReviews(userId);
     return res.status(StatusCodes.OK).success({ data: { reviews } });

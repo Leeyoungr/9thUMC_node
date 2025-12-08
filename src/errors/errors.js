@@ -9,6 +9,11 @@ const Errors = {
   },
 
   // User Errors
+  UNAUTHORIZED: {
+    code: StatusCodes.UNAUTHORIZED,
+    message: "인증이 필요합니다.",
+    description: "로그인이 필요하거나 토큰이 유효하지 않습니다.",
+  },
   LOGIN_FAILED: {
     code: StatusCodes.UNAUTHORIZED,
     message: "이메일 또는 비밀번호가 올바르지 않습니다.",

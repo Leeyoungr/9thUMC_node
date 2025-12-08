@@ -19,7 +19,7 @@ export const handleListStoreReviews = async (req, res, next) => {
       typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : undefined
     );
 
-    res.status(StatusCodes.OK).success({ data: reviews });
+    res.status(StatusCodes.OK).success({ data: { reviews } });
   } catch (err) {
     next(err);
   }
@@ -30,7 +30,7 @@ export const handleListStoreMissions = async (req, res, next) => {
     const storeId = req.store.id;
 
     const missions = await listStoreMissions(storeId);
-    res.status(StatusCodes.OK).success({ data: missions });
+    res.status(StatusCodes.OK).success({ data: { missions } });
   } catch (err) {
     next(err);
   }
