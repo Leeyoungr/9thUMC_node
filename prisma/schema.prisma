@@ -32,6 +32,7 @@ enum UserMissionStatus {
 
 enum AuthProvider {
   GOOGLE
+  LOCAL
 }
 
 // Models

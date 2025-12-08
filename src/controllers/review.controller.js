@@ -9,9 +9,11 @@ export const handleCreateStoreReview = async (req, res, next) => {
     if (!store || !store.id) {
       throw new CustomError({ name: "BAD_REQUEST", description: "유효한 매장이 필요합니다." });
     }
+    // 컨트롤러에서 user.id 접근
+    const userId = req.user.id;
 
     const data = bodyToReview(req.body);
-    const created = await createStoreReview(store.id, data);
+    const created = await createStoreReview(store.id, data, userId);
 
     return res.status(StatusCodes.CREATED).success({ data: { review: created } });
   } catch (err) {

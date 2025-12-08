@@ -1,6 +1,6 @@
 import { Router } from "express";
-
 import { handleListStoreMissions, handleListStoreReviews, handleStoreCreate } from "../controllers/store.controller.js";
+import { isLogin } from "../middleware/auth.middleware.js";
 
 import { createStoreReqHandler, validateCreateStoreReq } from "../middleware/validation/store.validation.js";
 
@@ -16,6 +16,7 @@ router.post("/signup", validateCreateStoreReq, createStoreReqHandler, handleStor
 // POST /api/v1/stores/:storeId/reviews -> 매장 리뷰 생성
 router.post(
   "/:storeId/reviews",
+  isLogin,
   validateCreateReviewReq,
   ensureStoreExists,
   createReviewReqHandler,

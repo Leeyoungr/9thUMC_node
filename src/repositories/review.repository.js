@@ -1,17 +1,14 @@
 import { prisma } from "../config/db.config.js";
 import CustomError from "../errors/custom.error.js";
 
-export const addReview = async (data) => {
+export const addReview = async ({ userId, storeId, score, content }) => {
   try {
-    // HACK: userId 임시 고정
-    const userId = 1;
-
     const created = await prisma.review.create({
       data: {
-        storeId: data.storeId,
+        storeId: storeId,
         userId: userId,
-        score: data.score,
-        content: data.content || null,
+        score: score,
+        content: content || null,
       },
     });
 
