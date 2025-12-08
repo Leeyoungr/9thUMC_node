@@ -1,9 +1,16 @@
 import { StatusCodes } from "http-status-codes";
 import { userLogin } from "../services/auth.service.js";
 import CustomError from "../errors/custom.error.js";
-import { prisma } from "../config/db.config.js";
+import {
+  findByProviderAccount,
+  upsertUserAuth,
+  findByRefreshHash,
+  updateRefreshHashById,
+  invalidateByRefreshHash,
+  invalidateByProviderAccount,
+} from "../repositories/userAuth.repository.js";
 import crypto from "crypto";
-import { generateAccessToken, generateRefreshToken } from "../util/oauth.util.js";
+import { generateAccessToken, generateRefreshToken } from "../util/jwt.util.js";
 import { setRefreshTokenCookie, clearRefreshTokenCookie } from "../util/cookie.util.js";
 
 export const handleUserLogin = async (req, res, next) => {
@@ -14,7 +21,23 @@ export const handleUserLogin = async (req, res, next) => {
       throw new CustomError({ name: "LOGIN_FAILED" });
     }
 
-    return res.status(StatusCodes.OK).success({ data: { user } });
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    try {
+      const provider = "LOCAL";
+      const providerAccountId = String(user.id);
+      const providerEmail = user.email ?? null;
+      const refreshTokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+
+      await upsertUserAuth({ provider, providerAccountId, providerEmail, refreshTokenHash, userId: user.id });
+    } catch (err) {
+      console.error("로컬 로그인 실패: UserAuth 업데이트 중 오류 발생:", err);
+    }
+
+    setRefreshTokenCookie(res, refreshToken);
+
+    return res.status(StatusCodes.OK).success({ data: { accessToken, user }, message: "로컬 로그인 성공" });
   } catch (err) {
     next(err);
   }
@@ -27,7 +50,7 @@ export const handleRefreshToken = async (req, res, next) => {
 
     const hash = crypto.createHash("sha256").update(provided).digest("hex");
 
-    const userAuth = await prisma.userAuth.findFirst({ where: { refreshTokenHash: hash }, include: { user: true } });
+    const userAuth = await findByRefreshHash(hash);
     if (!userAuth || !userAuth.user)
       return res.status(StatusCodes.UNAUTHORIZED).error({ errorCode: "INVALID_REFRESH_TOKEN" });
 
@@ -38,7 +61,7 @@ export const handleRefreshToken = async (req, res, next) => {
     const newRefresh = generateRefreshToken(user);
     const newHash = crypto.createHash("sha256").update(newRefresh).digest("hex");
 
-    await prisma.userAuth.update({ where: { id: userAuth.id }, data: { refreshTokenHash: newHash } });
+    await updateRefreshHashById(userAuth.id, newHash);
 
     // 리프레시 토큰을 HttpOnly 쿠키로 설정(유틸 사용)
     setRefreshTokenCookie(res, newRefresh);
@@ -81,12 +104,9 @@ export const handleLogout = async (req, res, next) => {
 
     if (provided) {
       const hash = crypto.createHash("sha256").update(provided).digest("hex");
-      await prisma.userAuth.updateMany({ where: { refreshTokenHash: hash }, data: { refreshTokenHash: null } });
+      await invalidateByRefreshHash(hash);
     } else {
-      await prisma.userAuth.updateMany({
-        where: { provider, providerAccountId },
-        data: { refreshTokenHash: null },
-      });
+      await invalidateByProviderAccount(provider, providerAccountId);
     }
     // 클라이언트 쿠키에서 리프레시 토큰 제거
     clearRefreshTokenCookie(res);

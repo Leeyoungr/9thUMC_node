@@ -2,19 +2,10 @@ import dotenv from "dotenv";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { prisma } from "../config/db.config.js";
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import { upsertUserAuth } from "../repositories/userAuth.repository.js";
+import { generateAccessToken, generateRefreshToken } from "./jwt.util.js";
 
 dotenv.config();
-const secret = process.env.JWT_SECRET;
-
-export const generateAccessToken = (user) => {
-  return jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn: "1h" });
-};
-
-export const generateRefreshToken = (user) => {
-  return jwt.sign({ id: user.id }, secret, { expiresIn: "14d" });
-};
 
 // GoogleVerify
 const googleVerify = async (profile) => {
@@ -75,26 +66,9 @@ export const googleStrategy = new GoogleStrategy(
 
         const refreshTokenHash = crypto.createHash("sha256").update(jwtRefreshToken).digest("hex");
 
-        const existing = await prisma.userAuth.findFirst({ where: { provider, providerAccountId } });
-        if (existing) {
-          await prisma.userAuth.update({
-            where: { id: existing.id },
-            data: { refreshTokenHash, providerEmail },
-          });
-        } else {
-          await prisma.userAuth.create({
-            data: {
-              provider,
-              providerAccountId,
-              providerEmail,
-              refreshTokenHash,
-              userId: user.id,
-            },
-          });
-        }
+        await upsertUserAuth({ provider, providerAccountId, providerEmail, refreshTokenHash, userId: user.id });
       } catch (innerErr) {
-        // 토큰 저장 실패는 인증 자체를 막지 않도록 로깅 후 계속 진행
-        console.error("Failed to store userAuth:", innerErr);
+        console.error("Google 로그인 실패: UserAuth 업데이트 중 오류 발생:", innerErr);
       }
 
       return cb(null, {
@@ -106,23 +80,3 @@ export const googleStrategy = new GoogleStrategy(
     }
   }
 );
-
-const jwtOptions = {
-  // 요청 헤더의 'Authorization'에서 'Bearer <token>' 토큰을 추출
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
-};
-
-export const jwtStrategy = new JwtStrategy(jwtOptions, async (payload, done) => {
-  try {
-    const user = await prisma.user.findFirst({ where: { id: payload.id } });
-
-    if (user) {
-      return done(null, user);
-    } else {
-      return done(null, false);
-    }
-  } catch (err) {
-    return done(err, false);
-  }
-});

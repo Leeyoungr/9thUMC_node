@@ -9,11 +9,10 @@ import YAML from "yamljs";
 import globalErrorHandler from "./errors/error.middleware.js";
 import { attachResponseHelpers } from "./errors/response.middleware.js";
 import indexRouter from "./router/index.router.js";
-import oauth2Router from "./router/oauth2.router.js";
+import oauth2Router from "./router/auth.router.js";
 import passport from "passport";
-import { googleStrategy, jwtStrategy } from "./util/oauth.util.js";
-import { prisma } from "./config/db.config.js";
-
+import { googleStrategy } from "./util/oauth.util.js";
+import { jwtStrategy } from "./util/jwt.util.js";
 dotenv.config();
 
 passport.use(googleStrategy);

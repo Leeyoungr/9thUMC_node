@@ -1,6 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
-import { handleRefreshToken, handleGoogleCallback, handleLogout } from "../controllers/oauth.controller.js";
+import { handleRefreshToken, handleGoogleCallback, handleLogout } from "../controllers/auth.controller.js";
 
 const router = Router();
 
