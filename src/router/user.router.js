@@ -13,6 +13,7 @@ import {
 const router = Router();
 
 // POST /api/v1/users/signup -> 사용자 회원가입
+// 회원가입 후 로그인을 해야 토큰 발급 (자동 로그인 X)
 router.post("/signup", validateUserSignUpReq, userReqHandler, handleUserSignUp);
 
 // POST /api/v1/users/login -> 로그인(비밀번호 검증)

@@ -9,9 +9,9 @@ import YAML from "yamljs";
 import globalErrorHandler from "./errors/error.middleware.js";
 import { attachResponseHelpers } from "./errors/response.middleware.js";
 import indexRouter from "./router/index.router.js";
-import oauth2Router from "./router/auth.router.js";
+import authRouter from "./router/auth.router.js";
 import passport from "passport";
-import { googleStrategy } from "./util/oauth.util.js";
+import { googleStrategy } from "./util/google.util.js";
 import { jwtStrategy } from "./util/jwt.util.js";
 dotenv.config();
 
@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1", indexRouter);
-app.use("/oauth2", oauth2Router);
+app.use("/auth", authRouter);
 
 app.use(globalErrorHandler);
 
