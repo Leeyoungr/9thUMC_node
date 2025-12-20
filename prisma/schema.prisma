@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum UserMissionStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum AuthProvider {
+  GOOGLE
+  LOCAL
+}
+
+// Models
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique(map: "email") @db.VarChar(255)
+  name          String   @db.VarChar(100)
+  nickname      String?   @db.VarChar(100)
+  password      String?   @db.VarChar(255)
+  gender        Gender?   @default(OTHER)
+  birth         DateTime? @db.Date
+  address       String?   @db.VarChar(255)
+  specAddress   String?  @map("spec_address") @db.VarChar(255)
+  phoneNumber   String?   @map("phone_number") @db.VarChar(15)
+  status        Status   @default(ACTIVE)
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  userAuths     UserAuth[]
+  userPrefer    userPrefer[]
+  userMission   UserMission[]
+  reviews       Review[]
+
+  @@map("user")
+}
+
+model UserAuth {
+  id                Int          @id @default(autoincrement())
+  provider          AuthProvider
+  providerAccountId String       
+  providerEmail     String?      
+  refreshTokenHash  String?
+  user              User         @relation(fields: [userId], references: [id])
+  userId            Int
+  createdAt         DateTime     @default(now())
+
+  @@unique([provider, providerAccountId])
+  @@map("user_auth")
+}
+
+model FoodCategory {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  userPrefer    userPrefer[]
+
+  @@map("food_category")
+}
+
+model Region {
+  id         Int     @id @default(autoincrement())
+  name       String  @unique
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  stores     Store[]
+
+  @@map("region")
+}
+
+model Store {
+  id         Int      @id @default(autoincrement())
+  region     Region   @relation(fields: [regionId], references: [id])
+  regionId   Int      @map("region_id")
+  name       String   @db.VarChar(20)
+  address    String   @db.VarChar(100)
+  score      Decimal? @db.Decimal(2, 1)
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  missions   Mission[]
+  reviews    Review[]
+
+  @@map("store")
+}
+
+model Mission {
+  id         Int      @id @default(autoincrement())
+  store      Store    @relation(fields: [storeId], references: [id])
+  storeId    Int      @map("store_id")
+  reward     Int
+  spec       String   @db.VarChar(100)
+  deadLine   DateTime @map("dead_line") @db.Date
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  userMissions UserMission[]
+
+  @@map("mission")
+}
+
+model UserMission {
+  id         Int               @id @default(autoincrement())
+  user       User              @relation(fields: [userId], references: [id])
+  userId     Int               @map("user_id")
+  mission    Mission           @relation(fields: [missionId], references: [id])
+  missionId  Int               @map("mission_id")
+  status     UserMissionStatus @default(IN_PROGRESS)
+  createdAt  DateTime          @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime          @updatedAt @map("updated_at") @db.DateTime(6)
+
+  @@map("user_mission")
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int      @map("user_id")
+  store      Store    @relation(fields: [storeId], references: [id])
+  storeId    Int      @map("store_id")
+  content    String?   @db.Text
+  score      Decimal  @db.Decimal(2, 1)
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  @@map("review")
+}
+
+model userPrefer {
+  id             Int          @id @default(autoincrement())
+  user           User         @relation(fields: [userId], references: [id])
+  userId         Int          @map("user_id")
+  foodCategory   FoodCategory @relation(fields: [foodCategoryId], references: [id])
+  foodCategoryId Int          @map("food_category_id")
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(6)
+
+  @@index([foodCategoryId], map: "f_category_id")
+  @@index([userId], map: "user_id")
+  @@map("user_prefer")
+}
+
